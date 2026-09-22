@@ -76,7 +76,7 @@ Helper scripts are organized under `scripts/`:
 
 | Folder | Purpose |
 |--------|---------|
-| `scripts/kafka/` | Kafka installation and CLI shortcuts for topics, producers, consumers, and consumer groups |
+| `scripts/kafka/` | Kafka CLI scripts: `kafka-install.sh`, `kafka-start.sh`, `kafka-list-topics.sh`, and more |
 | `scripts/setup/` | Environment setup (SDKman versions, environment variables) |
 
 ## Notes
