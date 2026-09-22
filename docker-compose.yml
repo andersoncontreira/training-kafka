@@ -1,0 +1,33 @@
+services:
+  kafka:
+    build:
+      context: ./docker/kafka
+      dockerfile: Dockerfile
+      args:
+        JAVA_VERSION: 21
+        KAFKA_VERSION: 4.3.1
+        SCALA_VERSION: 2.13
+    container_name: training-kafka
+    hostname: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      CLUSTER_ID: MkQkTWVlNDQ2YjUwMjQ1Mzk4
+    volumes:
+      - kafka-logs:/var/kafka-logs
+    networks:
+      - training-kafka-network
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo 'test' | nc -q 1 localhost 9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  kafka-logs:
+    driver: local
+
+networks:
+  training-kafka-network:
+    driver: bridge
