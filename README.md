@@ -40,17 +40,14 @@ training-kafka/
 Download Kafka from the [official site](https://kafka.apache.org/downloads) and extract it.
 The scripts in `scripts/setup/` can help with the local environment.
 
-### 2. Start Kafka (KRaft mode — no ZooKeeper needed in Kafka 3.x)
+### 2. Start Kafka (KRaft mode — no ZooKeeper)
 
 ```bash
-# Generate a cluster UUID
-KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+# First run only: format storage and start
+bash scripts/kafka/kafka-start.sh
 
-# Format the storage directory
-bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c config/kraft/server.properties
-
-# Start the server
-bin/kafka-server-start.sh config/kraft/server.properties
+# Stop the broker
+bash scripts/kafka/kafka-stop.sh
 ```
 
 ### 3. Build the Java project
@@ -81,6 +78,6 @@ Helper scripts are organized under `scripts/`:
 
 ## Notes
 
-- Kafka is run locally in **KRaft mode** (no ZooKeeper) as recommended for Kafka 3.x+
+- Kafka is run locally in **KRaft mode** (no ZooKeeper) as required by Kafka 4.x
 - Default broker address: `localhost:9092`
 - All code examples use the official Apache Kafka Java client

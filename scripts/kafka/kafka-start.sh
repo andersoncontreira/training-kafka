@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # kafka-start.sh
-# Starts a local Kafka broker in KRaft mode (no ZooKeeper).
+# Starts a local Kafka broker in KRaft mode (Kafka 4.x — no ZooKeeper).
 # On first run, formats the storage directory automatically.
 # Usage: bash scripts/kafka/kafka-start.sh
 
 set -euo pipefail
 
 KAFKA_HOME="${KAFKA_HOME:-${HOME}/kafka}"
-KRAFT_CONFIG="${KAFKA_HOME}/config/kraft/server.properties"
-STORAGE_DIR="/tmp/kraft-combined-logs"
+KRAFT_CONFIG="${KAFKA_HOME}/config/server.properties"
+FLAG_FILE="${HOME}/.kafka-kraft-formatted"
 
 if [[ ! -d "${KAFKA_HOME}" ]]; then
   echo "ERROR: Kafka not found at ${KAFKA_HOME}"
@@ -16,16 +16,15 @@ if [[ ! -d "${KAFKA_HOME}" ]]; then
   exit 1
 fi
 
-# Format storage on first run (flag file used to avoid re-formatting)
-FLAG_FILE="${STORAGE_DIR}/.formatted"
+# Format storage on first run only
 if [[ ! -f "${FLAG_FILE}" ]]; then
-  echo "==> Formatting KRaft storage directory ..."
+  echo "==> Formatting KRaft storage (first run) ..."
   KAFKA_CLUSTER_ID="$("${KAFKA_HOME}/bin/kafka-storage.sh" random-uuid)"
   "${KAFKA_HOME}/bin/kafka-storage.sh" format \
     -t "${KAFKA_CLUSTER_ID}" \
     -c "${KRAFT_CONFIG}"
-  mkdir -p "${STORAGE_DIR}"
   touch "${FLAG_FILE}"
+  echo "==> Storage formatted."
 fi
 
 echo "==> Starting Kafka broker (KRaft mode) ..."
