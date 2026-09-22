@@ -1,0 +1,6 @@
+# SDKman version pinning for this project
+# Run `sdk env install` to install all versions below
+# Run `sdk env` to switch to them in your current shell
+java=11.0.20-amzn
+maven=3.9.9
+gradle=8.9
