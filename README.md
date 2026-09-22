@@ -42,12 +42,30 @@ The scripts in `scripts/setup/` can help with the local environment.
 
 ### 2. Start Kafka (KRaft mode — no ZooKeeper)
 
+**Using the helper script (recommended):**
+
 ```bash
 # First run only: format storage and start
 bash scripts/kafka/kafka-start.sh
 
 # Stop the broker
 bash scripts/kafka/kafka-stop.sh
+```
+
+**Or use native Kafka commands:**
+
+```bash
+# Format storage (first run only)
+~/kafka/bin/kafka-storage.sh format \
+  --cluster-id "$(~/kafka/bin/kafka-storage.sh random-uuid)" \
+  --config ~/kafka/config/server.properties \
+  --standalone
+
+# Start the broker
+~/kafka/bin/kafka-server-start.sh ~/kafka/config/server.properties
+
+# Stop the broker (in another terminal)
+~/kafka/bin/kafka-server-stop.sh
 ```
 
 ### 3. Build the Java project
