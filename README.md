@@ -29,9 +29,10 @@ training-kafka/
 
 ## Prerequisites
 
-- Java 11+
-- Apache Maven 3.6+
-- Apache Kafka 3.x (see [setup guide](scripts/setup/README.md))
+- Java 17+ (managed via SDKman — see `.sdkmanrc`)
+- Apache Maven 3.9+ (managed via SDKman)
+- Docker + Docker Compose (for Options A and B)
+- Apache Kafka 4.x locally (for Option C — see `scripts/kafka/kafka-install.sh`)
 
 ## Getting Started
 
@@ -42,34 +43,53 @@ The scripts in `scripts/setup/` can help with the local environment.
 
 ### 2. Start Kafka (KRaft mode — no ZooKeeper)
 
-**Default — Confluent image (recommended):**
+#### Option A — Confluent image (default, recommended)
+
 ```bash
+# Start
 docker-compose up -d
-```
 
-**Alternative — Custom Dockerfile build:**
-```bash
-docker-compose -f docker-compose.custom.yml up -d
-```
-
-**Stop:**
-```bash
+# Stop
 docker-compose down
+
+# Stop and remove volumes (clean slate)
+docker-compose down -v
 ```
 
-**Or run locally without Docker (requires Kafka installed via `kafka-install.sh`):**
-```bash
-bash scripts/kafka/kafka-start.sh
+#### Option B — Custom Dockerfile build
 
-# Stop the broker
-bash scripts/kafka/kafka-stop.sh
+```bash
+# First run (build image and start)
+docker-compose -f docker-compose.custom.yml up --build -d
+
+# Subsequent runs
+docker-compose -f docker-compose.custom.yml up -d
+
+# Stop
+docker-compose -f docker-compose.custom.yml down
+
+# Stop and remove volumes (clean slate)
+docker-compose -f docker-compose.custom.yml down -v
 ```
 
-**Or use native Kafka commands:**
+Both options expose Kafka on the same addresses:
+- **External (host):** `localhost:29092`
+- **Internal (Docker network):** `kafka:9092`
+
+#### Option C — Run locally without Docker
+
+Requires Kafka installed via `bash scripts/kafka/kafka-install.sh`.
 
 ```bash
-# Format storage (first run only)
-# Note: --standalone is required for single-node local setup
+# Using the helper scripts
+bash scripts/kafka/kafka-start.sh   # starts the broker
+bash scripts/kafka/kafka-stop.sh    # stops the broker
+```
+
+**Or with native Kafka commands:**
+
+```bash
+# Format storage (first run only — --standalone required for single-node)
 ~/kafka/bin/kafka-storage.sh format \
   --cluster-id "$(~/kafka/bin/kafka-storage.sh random-uuid)" \
   --config ~/kafka/config/server.properties \

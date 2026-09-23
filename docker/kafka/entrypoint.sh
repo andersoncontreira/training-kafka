@@ -17,7 +17,8 @@ if [ ! -f "${FORMAT_FLAG}" ]; then
 
   ${KAFKA_HOME}/bin/kafka-storage.sh format \
     --cluster-id "${CLUSTER_ID}" \
-    --config "${CONFIG_FILE}"
+    --config "${CONFIG_FILE}" \
+    --ignore-formatted
 
   touch "${FORMAT_FLAG}"
   echo "==> Storage formatted."

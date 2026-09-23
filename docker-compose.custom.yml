@@ -10,7 +10,7 @@ services:
     container_name: training-kafka
     hostname: kafka
     ports:
-      - "9092:9092"
+      - "29092:29092"
       - "9093:9093"
     environment:
       CLUSTER_ID: MkQkTWVlNDQ2YjUwMjQ1Mzk4
@@ -19,7 +19,7 @@ services:
     networks:
       - training-kafka-network
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo 'test' | nc -q 1 localhost 9092"]
+      test: ["CMD", "bash", "-c", "echo 'test' | nc -q 1 localhost 29092"]
       interval: 10s
       timeout: 5s
       retries: 5
