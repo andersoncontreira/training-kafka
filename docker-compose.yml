@@ -1,25 +1,30 @@
 services:
   kafka:
-    build:
-      context: ./docker/kafka
-      dockerfile: Dockerfile
-      args:
-        JAVA_VERSION: 21
-        KAFKA_VERSION: 4.3.1
-        SCALA_VERSION: 2.13
+    image: confluentinc/cp-kafka:7.7.8
     container_name: training-kafka
     hostname: kafka
     ports:
-      - "9092:9092"
+      - "29092:29092"
       - "9093:9093"
     environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       CLUSTER_ID: MkQkTWVlNDQ2YjUwMjQ1Mzk4
     volumes:
-      - kafka-logs:/var/kafka-logs
+      - kafka-logs:/var/lib/kafka/data
     networks:
       - training-kafka-network
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo 'test' | nc -q 1 localhost 9092"]
+      test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:29092"]
       interval: 10s
       timeout: 5s
       retries: 5

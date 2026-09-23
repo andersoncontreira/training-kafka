@@ -6,7 +6,7 @@
 set -euo pipefail
 
 KAFKA_HOME="${KAFKA_HOME:-${HOME}/kafka}"
-BOOTSTRAP_SERVER="${BOOTSTRAP_SERVER:-localhost:9092}"
+BOOTSTRAP_SERVER="${BOOTSTRAP_SERVER:-localhost:29092}"
 
 if [[ ! -d "${KAFKA_HOME}" ]]; then
   echo "ERROR: Kafka not found at ${KAFKA_HOME}"

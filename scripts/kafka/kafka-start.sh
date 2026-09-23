@@ -22,7 +22,8 @@ if [[ ! -f "${FLAG_FILE}" ]]; then
   KAFKA_CLUSTER_ID="$("${KAFKA_HOME}/bin/kafka-storage.sh" random-uuid)"
   "${KAFKA_HOME}/bin/kafka-storage.sh" format \
     -t "${KAFKA_CLUSTER_ID}" \
-    -c "${KRAFT_CONFIG}"
+    -c "${KRAFT_CONFIG}" \
+    --standalone
   touch "${FLAG_FILE}"
   echo "==> Storage formatted."
 fi

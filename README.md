@@ -42,10 +42,23 @@ The scripts in `scripts/setup/` can help with the local environment.
 
 ### 2. Start Kafka (KRaft mode — no ZooKeeper)
 
-**Using the helper script (recommended):**
-
+**Default — Confluent image (recommended):**
 ```bash
-# First run only: format storage and start
+docker-compose up -d
+```
+
+**Alternative — Custom Dockerfile build:**
+```bash
+docker-compose -f docker-compose.custom.yml up -d
+```
+
+**Stop:**
+```bash
+docker-compose down
+```
+
+**Or run locally without Docker (requires Kafka installed via `kafka-install.sh`):**
+```bash
 bash scripts/kafka/kafka-start.sh
 
 # Stop the broker
@@ -56,6 +69,7 @@ bash scripts/kafka/kafka-stop.sh
 
 ```bash
 # Format storage (first run only)
+# Note: --standalone is required for single-node local setup
 ~/kafka/bin/kafka-storage.sh format \
   --cluster-id "$(~/kafka/bin/kafka-storage.sh random-uuid)" \
   --config ~/kafka/config/server.properties \
@@ -97,5 +111,5 @@ Helper scripts are organized under `scripts/`:
 ## Notes
 
 - Kafka is run locally in **KRaft mode** (no ZooKeeper) as required by Kafka 4.x
-- Default broker address: `localhost:9092`
+- Default broker address: `localhost:29092` (external) / `kafka:9092` (internal Docker network)
 - All code examples use the official Apache Kafka Java client
