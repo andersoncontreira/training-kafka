@@ -4,19 +4,21 @@ Kafka 4.x container configuration with KRaft mode (no ZooKeeper).
 
 ## Quick Start
 
-### Using Docker Compose (Recommended)
+### Using Docker Compose with Custom Build
 
 From the project root:
 
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose.custom.yml up --build -d
 ```
 
 This will:
-- Build the Kafka image
+- Build the custom Kafka image (from this Dockerfile)
 - Start Kafka in KRaft mode
 - Expose port `9092` (broker) and `9093` (controller)
 - Create a persistent volume for logs
+
+**Note**: For the default Confluent image, use `docker-compose up -d` instead.
 
 ### Check Status
 
@@ -64,28 +66,18 @@ docker run -d \
 
 ## Java Version Compatibility
 
-- **Default**: Java 21 (LTS, supported until 2028) — **recommended**
+- **Current**: Java 21 (LTS, supported until 2028) on **Alpine Linux** — lightweight & recommended
 - **Compatible**: Java 17+ (LTS, supported until 2026)
 - **Kafka 4.3.1**: Works with both versions
-- **Base Image**: Eclipse Temurin (maintained by Adoptium)
+- **Base Image**: `eclipse-temurin:${JAVA_VERSION}-jdk-alpine` (maintained by Adoptium)
 
-Available Temurin tags:
-- `21-jdk` (full JDK, Ubuntu-based) — default
-- `21-jre` (JRE only, smaller)
-- `21-jdk-alpine` (Alpine Linux, minimal)
-- `21-jdk-jammy` (Ubuntu 22.04)
-- `17-jdk`, `17-jre`, etc.
+To use a different Java version, pass via build arg:
 
-To use Java 17 (if needed), customize via docker-compose:
-
-```yaml
-  kafka:
-    build:
-      args:
-        JAVA_VERSION: 17
+```bash
+docker build --build-arg JAVA_VERSION=17 -t training-kafka:4.3.1-java17 .
 ```
 
-Or for Alpine (smaller image):
+Or via docker-compose:
 
 ```yaml
   kafka:
@@ -93,29 +85,42 @@ Or for Alpine (smaller image):
       context: ./docker/kafka
       dockerfile: Dockerfile
       args:
-        JAVA_VERSION: 21-alpine
+        JAVA_VERSION: 17  # Uses 17-jdk-alpine
 ```
 
 ## Configuration
 
+### Files
+
+- **`Dockerfile`**: Builds the image with Kafka 4.3.1 on Alpine + Java 21
+- **`server.properties`**: Kafka broker configuration in KRaft mode
+- **`entrypoint.sh`**: Automatically formats KRaft storage on first run
+
+### Settings
+
 The `server.properties` file includes:
-- **KRaft mode**: controller.quorum.voters configuration
+- **KRaft mode**: `process.roles=broker,controller` and `controller.quorum.voters=1@kafka:9093`
 - **Listeners**: PLAINTEXT (9092) and CONTROLLER (9093)
 - **Data path**: `/var/kafka-logs` (mounted as volume)
-- **Replication factor**: 1 (suitable for single broker)
+- **Replication factor**: 1 (suitable for single-node setup)
+
+The `entrypoint.sh` script:
+- Detects first run and formats storage automatically
+- Sets `CLUSTER_ID` from environment or generates one
+- Starts the Kafka broker in KRaft mode
 
 ## Testing
 
 Test if Kafka is running:
 
 ```bash
-docker exec kafka kafka-broker-api-versions.sh --bootstrap-server localhost:9092
+docker exec training-kafka kafka-broker-api-versions.sh --bootstrap-server localhost:9092
 ```
 
 Create a topic:
 
 ```bash
-docker exec kafka kafka-topics.sh --create \
+docker exec training-kafka kafka-topics.sh --create \
   --bootstrap-server localhost:9092 \
   --topic test-topic \
   --partitions 1 \
@@ -125,7 +130,7 @@ docker exec kafka kafka-topics.sh --create \
 List topics:
 
 ```bash
-docker exec kafka kafka-topics.sh --list \
+docker exec training-kafka kafka-topics.sh --list \
   --bootstrap-server localhost:9092
 ```
 
